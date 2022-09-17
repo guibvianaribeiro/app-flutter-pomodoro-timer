@@ -29,6 +29,6 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Color.fromARGB(255, 0, 4, 255),
-    );j
+    );
   }
 }

@@ -375,7 +375,7 @@ class OptionsWidget extends StatelessWidget {
 
 //Tela Principal
 class PomodoroScreen extends StatelessWidget {
-  int screrenIndex = 1;
+  int selectedIndex = 1;
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[
@@ -437,13 +437,10 @@ class PomodoroScreen extends StatelessWidget {
         animationDuration: Duration(milliseconds: 300),
         height: 55,
         items: items,
-        index: 0,
         onTap: (index) {
-          setState(() {
-          _activePage = index;
-          });
-          },
-          );
+          setState() {
+            selectedIndex = index;
+          }
         },
       ),
     );
@@ -451,13 +448,14 @@ class PomodoroScreen extends StatelessWidget {
 }
 
 //Tela "Sobre"
+//Tela "Sobre"
 class AboutPage extends StatefulWidget {
   @override
   _AboutPageState createState() => _AboutPageState();
 }
 
 class _AboutPageState extends State<AboutPage> {
-  int index = 2;
+  int selectedIndex = 2;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

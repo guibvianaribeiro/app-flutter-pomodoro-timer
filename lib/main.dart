@@ -384,10 +384,6 @@ class _PomodoroScreen extends State<PomodoroScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final items = <Widget>[
-      Icon(CarbonIcons.alarm, size: 30),
-      Icon(CarbonIcons.face_cool, size: 30),
-    ];
     final provider = Provider.of<TimerService>(context);
     return Scaffold(
       backgroundColor: renderColor(provider.currentState),

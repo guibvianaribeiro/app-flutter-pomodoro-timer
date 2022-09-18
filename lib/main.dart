@@ -5,7 +5,6 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:carbon_icons/carbon_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 void main() {
   runApp(ChangeNotifierProvider<TimerService>(
@@ -196,6 +195,7 @@ class TimerCard extends StatelessWidget {
 
 //Lista de opções do Timer
 List selectableTime = [
+  "0",
   "300",
   "600",
   "900",
@@ -356,14 +356,14 @@ class OptionsWidget extends StatelessWidget {
               'Round',
               style: GoogleFonts.oswald(
                 fontSize: 80,
-                color: Color.fromARGB(255, 4, 67, 137),
+                color: renderColor(provider.currentState),
               ),
             ),
             Text(
               'Goal',
               style: GoogleFonts.oswald(
                 fontSize: 80,
-                color: Color.fromARGB(255, 4, 67, 137),
+                color: renderColor(provider.currentState),
               ),
             ),
           ],
@@ -374,8 +374,14 @@ class OptionsWidget extends StatelessWidget {
 }
 
 //Tela Principal
-class PomodoroScreen extends StatelessWidget {
+class PomodoroScreen extends StatefulWidget {
+  @override
+  _PomodoroScreen createState() => _PomodoroScreen();
+}
+
+class _PomodoroScreen extends State<PomodoroScreen> {
   int selectedIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[
@@ -429,46 +435,6 @@ class PomodoroScreen extends StatelessWidget {
               ),
               OptionsWidget(),
             ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.transparent,
-        animationDuration: Duration(milliseconds: 300),
-        height: 55,
-        items: items,
-        onTap: (index) {
-          setState() {
-            selectedIndex = index;
-          }
-        },
-      ),
-    );
-  }
-}
-
-//Tela "Sobre"
-//Tela "Sobre"
-class AboutPage extends StatefulWidget {
-  @override
-  _AboutPageState createState() => _AboutPageState();
-}
-
-class _AboutPageState extends State<AboutPage> {
-  int selectedIndex = 2;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(4, 67, 137, 1),
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Color.fromRGBO(4, 67, 137, 1),
-        title: Text(
-          'Sobre',
-          style: GoogleFonts.lato(
-            fontWeight: FontWeight.w700,
-            fontSize: 30,
           ),
         ),
       ),

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:carbon_icons/carbon_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(ChangeNotifierProvider<TimerService>(
@@ -115,9 +114,10 @@ class TimerCard extends StatelessWidget {
       children: [
         Text(
           provider.currentState,
-          style: GoogleFonts.lato(
+          style: TextStyle(
+            fontFamily: 'Lato',
             fontWeight: FontWeight.w700,
-            fontSize: 28,
+            fontSize: 25,
             color: Colors.white,
           ),
         ),
@@ -141,8 +141,9 @@ class TimerCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   (provider.currentDuration ~/ 60).toString(),
-                  style: GoogleFonts.oswald(
-                    fontSize: 80,
+                  style: TextStyle(
+                    fontFamily: 'Oswald',
+                    fontSize: 75,
                     color: renderColor(provider.currentState),
                   ),
                 ),
@@ -153,9 +154,11 @@ class TimerCard extends StatelessWidget {
             ),
             Text(
               ':',
-              style: GoogleFonts.lato(
-                fontSize: 40,
-                color: Colors.white,
+              style: TextStyle(
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.w700,
+                fontSize: 35,
+                color: Colors.white70,
               ),
             ),
             SizedBox(
@@ -179,8 +182,9 @@ class TimerCard extends StatelessWidget {
                   seconds == 0
                       ? "${seconds.round()}0"
                       : (provider.currentDuration % 60).round().toString(),
-                  style: GoogleFonts.oswald(
-                    fontSize: 80,
+                  style: TextStyle(
+                    fontFamily: 'Oswald',
+                    fontSize: 75,
                     color: renderColor(provider.currentState),
                   ),
                 ),
@@ -242,11 +246,13 @@ class TimerOptions extends StatelessWidget {
                 child: Text(
                   (int.parse(time) ~/ 60).toString(),
                   style: int.parse(time) == provider.selectedTime
-                      ? GoogleFonts.oswald(
+                      ? TextStyle(
+                          fontFamily: 'Oswald',
                           fontSize: 25,
                           color: renderColor(provider.currentState),
                         )
-                      : GoogleFonts.oswald(
+                      : TextStyle(
+                          fontFamily: 'Oswald',
                           fontSize: 25,
                           color: Colors.white,
                         ),
@@ -316,15 +322,17 @@ class OptionsWidget extends StatelessWidget {
           children: [
             Text(
               '${provider.rounds}/4',
-              style: GoogleFonts.oswald(
-                fontSize: 30,
+              style: TextStyle(
+                fontFamily: 'Oswald',
+                fontSize: 28,
                 color: Colors.grey[350],
               ),
             ),
             Text(
               'Pausas',
-              style: GoogleFonts.oswald(
-                fontSize: 30,
+              style: TextStyle(
+                fontFamily: 'Oswald',
+                fontSize: 28,
                 color: Colors.grey[350],
               ),
             ),
@@ -337,15 +345,17 @@ class OptionsWidget extends StatelessWidget {
           children: [
             Text(
               '${provider.goal}/12',
-              style: GoogleFonts.oswald(
-                fontSize: 30,
+              style: TextStyle(
+                fontFamily: 'Oswald',
+                fontSize: 28,
                 color: Colors.grey[350],
               ),
             ),
             Text(
               'Ciclos',
-              style: GoogleFonts.oswald(
-                fontSize: 30,
+              style: TextStyle(
+                fontFamily: 'Oswald',
+                fontSize: 28,
                 color: Colors.grey[350],
               ),
             ),
@@ -382,9 +392,10 @@ class _PomodoroScreen extends State<PomodoroScreen> {
             ),
             Text(
               'Pomodoro Timer',
-              style: GoogleFonts.lato(
+              style: TextStyle(
+                fontFamily: 'Lato',
                 fontWeight: FontWeight.w700,
-                fontSize: 30,
+                fontSize: 25,
               ),
             ),
           ],
@@ -422,11 +433,11 @@ class _PomodoroScreen extends State<PomodoroScreen> {
               ),
               TimerOptions(),
               SizedBox(
-                height: 30,
+                height: 35,
               ),
               TimerController(),
               SizedBox(
-                height: 30,
+                height: 35,
               ),
               OptionsWidget(),
             ],

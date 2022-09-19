@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
           nextScreen: PomodoroScreen(),
           splashTransition: SplashTransition.fadeTransition,
           pageTransitionType: PageTransitionType.rightToLeft,
-          backgroundColor: Color.fromARGB(255, 4, 67, 137)),
+          backgroundColor: Color(0xff1982c4)),
     );
   }
 }
@@ -207,9 +207,9 @@ List selectableTime = [
 //Mudança de cor de fundo
 Color renderColor(String currentState) {
   if (currentState == "Foco") {
-    return Color.fromRGBO(4, 67, 137, 1);
+    return Color(0xffff595e);
   } else {
-    return Color.fromARGB(255, 219, 57, 42);
+    return Color(0xff1982c4);
   }
 }
 
@@ -343,7 +343,7 @@ class OptionsWidget extends StatelessWidget {
               ),
             ),
             Text(
-              'Round',
+              'Ciclos',
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],

@@ -325,7 +325,7 @@ class OptionsWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Oswald',
                 fontSize: 28,
-                color: Colors.grey[350],
+                color: Colors.white,
               ),
             ),
             Text(
@@ -333,7 +333,7 @@ class OptionsWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Oswald',
                 fontSize: 28,
-                color: Colors.grey[350],
+                color: Colors.white,
               ),
             ),
           ],
@@ -348,7 +348,7 @@ class OptionsWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Oswald',
                 fontSize: 28,
-                color: Colors.grey[350],
+                color: Colors.white,
               ),
             ),
             Text(
@@ -356,7 +356,7 @@ class OptionsWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Oswald',
                 fontSize: 28,
-                color: Colors.grey[350],
+                color: Colors.white,
               ),
             ),
           ],
@@ -414,12 +414,6 @@ class _PomodoroScreen extends State<PomodoroScreen> {
             ),
           ),
         ],
-        leading: Icon(
-          CarbonIcons.information,
-          color: Colors.white,
-          size: 35,
-        ),
-        leadingWidth: 60,
       ),
       body: SingleChildScrollView(
         child: Container(

@@ -390,17 +390,25 @@ class _PomodoroScreen extends State<PomodoroScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              CarbonIcons.reset,
-              color: Colors.white,
+          Padding(
+            padding: EdgeInsets.only(right: 18),
+            child: IconButton(
+              icon: Icon(
+                CarbonIcons.reset,
+                color: Colors.white,
+                size: 35,
+              ),
+              onPressed: () =>
+                  Provider.of<TimerService>(context, listen: false).reset(),
             ),
-            padding: const EdgeInsets.only(right: 20),
-            iconSize: 30,
-            onPressed: () =>
-                Provider.of<TimerService>(context, listen: false).reset(),
           ),
         ],
+        leading: Icon(
+          CarbonIcons.information,
+          color: Colors.white,
+          size: 35,
+        ),
+        leadingWidth: 60,
       ),
       body: SingleChildScrollView(
         child: Container(

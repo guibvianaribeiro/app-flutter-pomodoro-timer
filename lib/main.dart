@@ -315,14 +315,14 @@ class OptionsWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Goal',
+              '${provider.rounds}/4',
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],
               ),
             ),
             Text(
-              '${provider.rounds}/4',
+              'Pausas',
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],
@@ -330,19 +330,20 @@ class OptionsWidget extends StatelessWidget {
             ),
           ],
         ),
+        SizedBox(width: 60),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Round',
+              '${provider.goal}/12',
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],
               ),
             ),
             Text(
-              '${provider.goal}/12',
+              'Round',
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],
@@ -370,15 +371,23 @@ class _PomodoroScreen extends State<PomodoroScreen> {
     return Scaffold(
       backgroundColor: renderColor(provider.currentState),
       appBar: AppBar(
+        titleSpacing: 0,
         centerTitle: true,
         elevation: 0,
         backgroundColor: renderColor(provider.currentState),
-        title: Text(
-          'Pomodoro Timer',
-          style: GoogleFonts.lato(
-            fontWeight: FontWeight.w700,
-            fontSize: 30,
-          ),
+        title: Column(
+          children: [
+            SizedBox(
+              height: 4,
+            ),
+            Text(
+              'Pomodoro Timer',
+              style: GoogleFonts.lato(
+                fontWeight: FontWeight.w700,
+                fontSize: 30,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -398,7 +407,7 @@ class _PomodoroScreen extends State<PomodoroScreen> {
           alignment: Alignment.center,
           child: Column(
             children: [
-              SizedBox(height: 15),
+              SizedBox(height: 30),
               TimerCard(),
               SizedBox(
                 height: 40,

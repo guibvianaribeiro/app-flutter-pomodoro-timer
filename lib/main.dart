@@ -306,13 +306,36 @@ class OptionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<TimerService>(context);
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
+              'Goal',
+              style: GoogleFonts.oswald(
+                fontSize: 30,
+                color: Colors.grey[350],
+              ),
+            ),
+            Text(
               '${provider.rounds}/4',
+              style: GoogleFonts.oswald(
+                fontSize: 30,
+                color: Colors.grey[350],
+              ),
+            ),
+          ],
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Round',
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],
@@ -323,47 +346,6 @@ class OptionsWidget extends StatelessWidget {
               style: GoogleFonts.oswald(
                 fontSize: 30,
                 color: Colors.grey[350],
-              ),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text(
-              'Round',
-              style: GoogleFonts.oswald(
-                fontSize: 30,
-                color: Colors.grey[350],
-              ),
-            ),
-            Text(
-              'Goal',
-              style: GoogleFonts.oswald(
-                fontSize: 30,
-                color: Colors.grey[350],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text(
-              'Round',
-              style: GoogleFonts.oswald(
-                fontSize: 80,
-                color: renderColor(provider.currentState),
-              ),
-            ),
-            Text(
-              'Goal',
-              style: GoogleFonts.oswald(
-                fontSize: 80,
-                color: renderColor(provider.currentState),
               ),
             ),
           ],

@@ -11,4 +11,6 @@
 
 # Pomodoro Timer
 
-## Aplicação de timer pomodoro desenvolvida em Flutter para a avaliação N1 da matéria de Desenvolvimento de Dispositivos Móveis.
+### Aplicação de timer pomodoro desenvolvida em Flutter para a avaliação N1 da matéria de Desenvolvimento de Dispositivos Móveis.
+
+### [Download Apk](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/gui-bvr/pomodoro-timer-flutter/blob/180eb60c10448fe1a8bb2b41dcdf8e95f3a792a0/pomodoro-timer.apk)

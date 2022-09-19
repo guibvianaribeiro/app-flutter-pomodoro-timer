@@ -1,4 +1,8 @@
-<img src="assets/markdown/icon.png" alt="icon" style="zoom: 20%; text-align: center;" />
+<div align="center">
+  <img src="assets/markdown/icon.png" width="200" alt="icon" " />
+</div>
+
+</br>
 
 <div align="center">
   <img style="margin: 10px" src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" height="30" />

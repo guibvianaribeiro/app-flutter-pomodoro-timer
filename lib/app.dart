@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'features/timer/presentation/timer_page.dart';
+import 'package:pomodoro_timer/core/theme/app_theme.dart';
+import 'package:pomodoro_timer/features/timer/presentation/pages/timer_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -7,11 +8,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pomodoro',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
-      ),
+      title: 'Pomodoro Timer',
+      theme: AppTheme.light,
       home: const TimerPage(),
       debugShowCheckedModeBanner: false,
     );

@@ -1,13 +1,25 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 import 'pomodoro_state.dart';
 import '../../core/services/ticker_service.dart';
+import 'package:pomodoro_timer/core/services/prefs_service.dart';
 
 class PomodoroController extends StateNotifier<PomodoroState> {
-  PomodoroController(this._ticker) : super(const PomodoroState());
+  PomodoroController(this._ticker, this._prefs) : super(const PomodoroState()) {
+    _loadConfig();
+  }
 
   final TickerService _ticker;
+  final PrefsService _prefs;
   StreamSubscription<int>? _sub;
+
+  Future<void> _loadConfig() async {
+    final loaded = await _prefs.loadConfigOrDefault(state.config);
+    state = state.copyWith(config: loaded);
+  }
+
+  Future<void> _saveConfig() => _prefs.saveConfig(state.config);
 
   void startFocus() => _startPhase(
         PomodoroPhase.focus,
@@ -51,8 +63,6 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     state = PomodoroState(config: state.config);
   }
 
-  void stop() => reset();
-
   void skip() {
     _sub?.cancel();
     _onCycleFinished();
@@ -89,21 +99,57 @@ class PomodoroController extends StateNotifier<PomodoroState> {
         startFocus();
       } else {
         state = state.copyWith(
-            phase: PomodoroPhase.idle, running: false, secondsLeft: 0);
+          phase: PomodoroPhase.idle,
+          running: false,
+          secondsLeft: 0,
+        );
       }
     } else {
       state = state.copyWith(phase: PomodoroPhase.idle, running: false);
     }
   }
 
-  void setConfig(PomodoroConfig config) {
-    state = state.copyWith(config: config);
-  }
-
+  // ===== setters de configuração + persistência =====
   void setFocusMinutes(int minutes) {
     state = state.copyWith(
       config: state.config.copyWith(focusMinutes: minutes),
     );
+    _saveConfig();
+  }
+
+  void setShortBreakMinutes(int minutes) {
+    state = state.copyWith(
+      config: state.config.copyWith(shortBreakMinutes: minutes),
+    );
+    _saveConfig();
+  }
+
+  void setLongBreakMinutes(int minutes) {
+    state = state.copyWith(
+      config: state.config.copyWith(longBreakMinutes: minutes),
+    );
+    _saveConfig();
+  }
+
+  void setCyclesPerLongBreak(int cycles) {
+    state = state.copyWith(
+      config: state.config.copyWith(cyclesPerLongBreak: cycles),
+    );
+    _saveConfig();
+  }
+
+  void setDailyTargetCycles(int cycles) {
+    state = state.copyWith(
+      config: state.config.copyWith(dailyTargetCycles: cycles),
+    );
+    _saveConfig();
+  }
+
+  void setAutoStartNext(bool v) {
+    state = state.copyWith(
+      config: state.config.copyWith(autoStartNext: v),
+    );
+    _saveConfig();
   }
 
   @override
@@ -114,9 +160,8 @@ class PomodoroController extends StateNotifier<PomodoroState> {
 }
 
 final pomodoroControllerProvider =
-    StateNotifierProvider<PomodoroController, PomodoroState>(
-  (ref) {
-    final ticker = ref.read(tickerServiceProvider);
-    return PomodoroController(ticker);
-  },
-);
+    StateNotifierProvider<PomodoroController, PomodoroState>((ref) {
+  final ticker = ref.read(tickerServiceProvider);
+  final prefs = ref.read(prefsServiceProvider);
+  return PomodoroController(ticker, prefs);
+});

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 import 'package:pomodoro_timer/core/theme/app_theme.dart';
+import 'package:pomodoro_timer/features/domain/pomodoro_controller.dart';
 
 final notificationsEnabledProvider = StateProvider<bool>((_) => true);
 final vibrateEnabledProvider = StateProvider<bool>((_) => true);
@@ -14,8 +15,11 @@ class HelpPage extends ConsumerWidget {
     final seed = ref.watch(seedColorProvider);
     final on = AppTheme.onForSeed(seed);
 
+    final state = ref.watch(pomodoroControllerProvider);
+    final ctrl = ref.read(pomodoroControllerProvider.notifier);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajuda & Preferências')),
+      appBar: AppBar(title: const Text('Preferências')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -24,7 +28,7 @@ class HelpPage extends ConsumerWidget {
             const _SectionTitle('OPÇÕES'),
             _TileSwitch(
               title: 'Mostrar notificações ao finalizar um ciclo',
-              subtitle: 'Exibe um alerta quando o Pomodoro termina',
+              subtitle: 'Exibe um alerta quando o tempo termina',
               value: ref.watch(notificationsEnabledProvider),
               onChanged: (v) =>
                   ref.read(notificationsEnabledProvider.notifier).state = v,
@@ -42,46 +46,49 @@ class HelpPage extends ConsumerWidget {
               onColor: on,
             ),
             const SizedBox(height: 24),
+            const _SectionTitle('PAUSAS E CICLOS'),
+            Row(
+              children: [
+                Expanded(
+                  child: _NumberCard(
+                    title: 'PAUSAS',
+                    value: state.config.cyclesPerLongBreak,
+                    unit: 'x',
+                    onMinus: () => ctrl.setCyclesPerLongBreak(
+                      (state.config.cyclesPerLongBreak - 1).clamp(1, 12),
+                    ),
+                    onPlus: () => ctrl.setCyclesPerLongBreak(
+                      (state.config.cyclesPerLongBreak + 1).clamp(1, 12),
+                    ),
+                    onColor: on,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _NumberCard(
+                    title: 'CICLOS',
+                    value: state.config.dailyTargetCycles,
+                    unit: 'x',
+                    onMinus: () => ctrl.setDailyTargetCycles(
+                      (state.config.dailyTargetCycles - 1).clamp(1, 48),
+                    ),
+                    onPlus: () => ctrl.setDailyTargetCycles(
+                      (state.config.dailyTargetCycles + 1).clamp(1, 48),
+                    ),
+                    onColor: on,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             const _SectionTitle('TEMAS DE COR'),
             _ColorGrid(
               selected: seed,
-              onSelect: (c) => ref.read(seedColorProvider.notifier).state = c,
+              onSelect: (c) => ref.read(seedColorProvider.notifier).set(c),
               onColor: on,
             ),
-            const SizedBox(height: 24),
-            const _SectionTitle('SOBRE'),
-            _TileButton(
-              title: 'Sobre o app',
-              subtitle: 'Informações e créditos',
-              icon: Icons.info_rounded,
-              onTap: () => _showAbout(context),
-              onColor: on,
-            ),
-            const SizedBox(height: 16),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showAbout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Sobre o App'),
-        content: const Text(
-          'Aplicação de timer Pomodoro desenvolvida em Flutter.\n\n'
-          'Este projeto começou como **portfólio** (versão legada v0.1.0-legacy) '
-          'e agora está sendo reescrito com arquitetura por features, Riverpod e Material 3. '
-          'Objetivo: ser um Pomodoro simples, acessível e agradável de usar.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Fechar'),
-          ),
-        ],
       ),
     );
   }
@@ -94,10 +101,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
+      child: Text(text, style: Theme.of(context).textTheme.headlineMedium),
     );
   }
 }
@@ -124,9 +128,7 @@ class _TileSwitch extends StatelessWidget {
     final cardColor = onColor.withOpacity(.14);
     return Container(
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
+          color: cardColor, borderRadius: BorderRadius.circular(16)),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
@@ -136,33 +138,28 @@ class _TileSwitch extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  // <- TEXTO ESCURO/CLARO DINÂMICO
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: onColor,
-                  ),
-                ),
+                Text(title,
+                    style: TextStyle(
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: onColor,
+                    )),
                 const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    fontSize: 13,
-                    color: onColor.withOpacity(.7),
-                  ),
-                ),
+                Text(subtitle,
+                    style: TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 13,
+                      color: onColor.withOpacity(.7),
+                    )),
               ],
             ),
           ),
           Switch(
             value: value,
             onChanged: onChanged,
-            thumbColor: WidgetStatePropertyAll(onColor),
-            trackColor: WidgetStatePropertyAll(onColor.withOpacity(.24)),
+            thumbColor: MaterialStatePropertyAll(onColor),
+            trackColor: MaterialStatePropertyAll(onColor.withOpacity(.24)),
           ),
         ],
       ),
@@ -170,65 +167,90 @@ class _TileSwitch extends StatelessWidget {
   }
 }
 
-class _TileButton extends StatelessWidget {
-  const _TileButton({
+class _NumberCard extends StatelessWidget {
+  const _NumberCard({
     required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
+    required this.value,
+    required this.unit,
+    required this.onMinus,
+    required this.onPlus,
     required this.onColor,
   });
 
   final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
+  final int value;
+  final String unit;
+  final VoidCallback onMinus;
+  final VoidCallback onPlus;
   final Color onColor;
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = onColor.withOpacity(.14);
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            _CircleIcon(icon, onColor),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: onColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontFamily: 'Lato',
-                      fontSize: 13,
-                      color: onColor.withOpacity(.7),
-                    ),
-                  ),
-                ],
-              ),
+    final bg = onColor.withOpacity(.12);
+    return Container(
+      decoration:
+          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Lato',
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              color: onColor.withOpacity(.8),
             ),
-            Icon(Icons.chevron_right, color: onColor.withOpacity(.7)),
-          ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _MiniRound(
+                  onColor: onColor, icon: Icons.remove_rounded, onTap: onMinus),
+              const SizedBox(width: 8),
+              Text(
+                '$value',
+                style: TextStyle(
+                  fontFamily: 'Oswald',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 28,
+                  color: onColor,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(unit, style: TextStyle(color: onColor.withOpacity(.7))),
+              const SizedBox(width: 8),
+              _MiniRound(
+                  onColor: onColor, icon: Icons.add_rounded, onTap: onPlus),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniRound extends StatelessWidget {
+  const _MiniRound(
+      {required this.onColor, required this.icon, required this.onTap});
+  final Color onColor;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkResponse(
+      onTap: onTap,
+      radius: 20,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: onColor.withOpacity(.18),
+          shape: BoxShape.circle,
         ),
+        child: Icon(icon, color: onColor, size: 18),
       ),
     );
   }
@@ -244,9 +266,7 @@ class _CircleIcon extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: onColor.withOpacity(.24),
-        shape: BoxShape.circle,
-      ),
+          color: onColor.withOpacity(.24), shape: BoxShape.circle),
       child: Icon(icon, color: onColor, size: 20),
     );
   }
@@ -290,36 +310,36 @@ class _ColorGrid extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(.06),
-        borderRadius: BorderRadius.circular(16),
-      ),
+          color: Colors.black.withOpacity(.06),
+          borderRadius: BorderRadius.circular(16)),
       padding: const EdgeInsets.all(12),
       child: Wrap(
         spacing: 12,
         runSpacing: 12,
-        children: colors.map((c) {
-          final isSel = (c.value == selected.value);
-          final check = AppTheme.onForSeed(c) == Colors.white
-              ? Colors.white
-              : const Color(0xDD000000);
-
-          return GestureDetector(
-            onTap: () => onSelect(c),
-            child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: c,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.black12, width: 1),
+        children: colors.map(
+          (c) {
+            final isSel = (c.value == selected.value);
+            final check = AppTheme.onForSeed(c) == Colors.white
+                ? Colors.white
+                : const Color(0xDD000000);
+            return GestureDetector(
+              onTap: () => onSelect(c),
+              child: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: c,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black12, width: 1),
+                ),
+                child: isSel
+                    ? Center(
+                        child: Icon(Icons.check_circle, color: check, size: 24))
+                    : null,
               ),
-              child: isSel
-                  ? Center(
-                      child: Icon(Icons.check_circle, color: check, size: 24))
-                  : null,
-            ),
-          );
-        }).toList(),
+            );
+          },
+        ).toList(),
       ),
     );
   }

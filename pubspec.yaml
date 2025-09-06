@@ -1,5 +1,5 @@
 name: pomodoro_timer
-description: Aplicativo Flutter de timer Pomodoro.
+description: Aplicativo Flutter de Timer Pomodoro.
 version: 0.2.0+1
 
 environment:
@@ -15,6 +15,7 @@ dependencies:
 
 dev_dependencies:
     flutter_lints: ^3.0.2
+    shared_preferences: ^2.2.3
 
 flutter_test:
     sdk: flutter

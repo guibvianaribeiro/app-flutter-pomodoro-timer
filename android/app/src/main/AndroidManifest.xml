@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.guibvr.pomodorotimer.pomodoro">
+    package="com.guibvianaribeiro.pomodorotimer">
    <application
         android:label="Pomodoro Timer"
         android:name="${applicationName}"

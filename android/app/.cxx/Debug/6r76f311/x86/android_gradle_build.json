@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "/Users/guilhermeviana/development/flutter/packages/flutter_tools/gradle/src/main/scripts/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/guilhermeviana/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/guilhermeviana/Documents/Apps Antigos de Portfolio/app-flutter-pomodoro-timer/android/app/.cxx/Debug/6r76f311/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/guilhermeviana/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/guilhermeviana/Documents/Apps Antigos de Portfolio/app-flutter-pomodoro-timer/android/app/.cxx/Debug/6r76f311/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {},
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/guilhermeviana/Library/Android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/guilhermeviana/Library/Android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": []
+}

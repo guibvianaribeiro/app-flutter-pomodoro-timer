@@ -9,6 +9,8 @@ class PomodoroController extends StateNotifier<PomodoroState> {
   final TickerService _ticker;
   StreamSubscription<int>? _sub;
 
+  get reset => null;
+
   void startFocus() => _startPhase(
         PomodoroPhase.focus,
         state.config.focusMinutes * 60,
@@ -81,6 +83,16 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     } else {
       state = state.copyWith(phase: PomodoroPhase.idle, running: false);
     }
+  }
+
+  void setConfig(PomodoroConfig config) {
+    state = state.copyWith(config: config);
+  }
+
+  void setFocusMinutes(int minutes) {
+    state = state.copyWith(
+      config: state.config.copyWith(focusMinutes: minutes),
+    );
   }
 
   @override

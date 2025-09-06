@@ -1,0 +1,2 @@
+/Users/guilhermeviana/Documents/Apps Antigos de Portfolio/app-flutter-pomodoro-timer/android/app/.cxx/Debug/6r76f311/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/guilhermeviana/Documents/Apps Antigos de Portfolio/app-flutter-pomodoro-timer/android/app/.cxx/Debug/6r76f311/armeabi-v7a/CMakeFiles/rebuild_cache.dir

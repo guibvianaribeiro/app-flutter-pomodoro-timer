@@ -6,6 +6,7 @@ class PomodoroConfig {
   final int longBreakMinutes;
   final int cyclesPerLongBreak;
   final bool autoStartNext;
+  final int dailyTargetCycles;
 
   const PomodoroConfig({
     this.focusMinutes = 25,
@@ -13,7 +14,26 @@ class PomodoroConfig {
     this.longBreakMinutes = 15,
     this.cyclesPerLongBreak = 4,
     this.autoStartNext = false,
+    this.dailyTargetCycles = 12,
   });
+
+  PomodoroConfig copyWith({
+    int? focusMinutes,
+    int? shortBreakMinutes,
+    int? longBreakMinutes,
+    int? cyclesPerLongBreak,
+    bool? autoStartNext,
+    int? dailyTargetCycles,
+  }) {
+    return PomodoroConfig(
+      focusMinutes: focusMinutes ?? this.focusMinutes,
+      shortBreakMinutes: shortBreakMinutes ?? this.shortBreakMinutes,
+      longBreakMinutes: longBreakMinutes ?? this.longBreakMinutes,
+      cyclesPerLongBreak: cyclesPerLongBreak ?? this.cyclesPerLongBreak,
+      autoStartNext: autoStartNext ?? this.autoStartNext,
+      dailyTargetCycles: dailyTargetCycles ?? this.dailyTargetCycles,
+    );
+  }
 }
 
 class PomodoroState {

@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pomodoro_state.dart';
-import '../../../core/services/ticker_service.dart';
+import '../../core/services/ticker_service.dart';
 
 class PomodoroController extends StateNotifier<PomodoroState> {
   PomodoroController(this._ticker) : super(const PomodoroState());
 
   final TickerService _ticker;
   StreamSubscription<int>? _sub;
-
-  get reset => null;
 
   void startFocus() => _startPhase(
         PomodoroPhase.focus,
@@ -26,6 +24,18 @@ class PomodoroController extends StateNotifier<PomodoroState> {
         state.config.longBreakMinutes * 60,
       );
 
+  void toggle() {
+    if (state.running) {
+      pause();
+    } else {
+      if (state.secondsLeft > 0 && state.phase != PomodoroPhase.idle) {
+        resume();
+      } else {
+        startFocus();
+      }
+    }
+  }
+
   void pause() {
     _sub?.pause();
     state = state.copyWith(running: false);
@@ -36,11 +46,12 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     state = state.copyWith(running: true);
   }
 
-  void stop() {
+  void reset() {
     _sub?.cancel();
-    state = state.copyWith(
-        phase: PomodoroPhase.idle, running: false, secondsLeft: 0);
+    state = PomodoroState(config: state.config);
   }
+
+  void stop() => reset();
 
   void skip() {
     _sub?.cancel();
@@ -103,7 +114,9 @@ class PomodoroController extends StateNotifier<PomodoroState> {
 }
 
 final pomodoroControllerProvider =
-    StateNotifierProvider<PomodoroController, PomodoroState>((ref) {
-  final ticker = ref.read(tickerServiceProvider);
-  return PomodoroController(ticker);
-});
+    StateNotifierProvider<PomodoroController, PomodoroState>(
+  (ref) {
+    final ticker = ref.read(tickerServiceProvider);
+    return PomodoroController(ticker);
+  },
+);

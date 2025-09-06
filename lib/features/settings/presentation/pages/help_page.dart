@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pomodoro_timer/core/theme/theme_provider.dart';
+import 'package:pomodoro_timer/core/theme/app_theme.dart';
 
 final notificationsEnabledProvider = StateProvider<bool>((_) => true);
 final vibrateEnabledProvider = StateProvider<bool>((_) => true);
@@ -11,9 +12,7 @@ class HelpPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seed = ref.watch(seedColorProvider);
-    // Texto/ícones dinâmicos: escuro para seeds claras, branco para seeds escuras
-    final bool isLightSeed = seed.computeLuminance() > 0.62;
-    final Color on = isLightSeed ? const Color(0xFF263238) : Colors.white;
+    final on = AppTheme.onForSeed(seed);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Ajuda & Preferências')),
@@ -22,7 +21,7 @@ class HelpPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SectionTitle('OPÇÕES'),
+            const _SectionTitle('OPÇÕES'),
             _TileSwitch(
               title: 'Mostrar notificações ao finalizar um ciclo',
               subtitle: 'Exibe um alerta quando o Pomodoro termina',
@@ -79,7 +78,9 @@ class HelpPage extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Fechar')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Fechar'),
+          ),
         ],
       ),
     );
@@ -132,31 +133,36 @@ class _TileSwitch extends StatelessWidget {
           _CircleIcon(icon, onColor),
           const SizedBox(width: 12),
           Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                title,
-                style: TextStyle(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  // <- TEXTO ESCURO/CLARO DINÂMICO
+                  style: TextStyle(
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
-                    color: onColor),
-              ),
-              const SizedBox(height: 2),
-              Text(subtitle,
+                    color: onColor,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
                   style: TextStyle(
-                      fontFamily: 'Lato',
-                      fontSize: 13,
-                      color: onColor.withOpacity(.7))),
-            ]),
+                    fontFamily: 'Lato',
+                    fontSize: 13,
+                    color: onColor.withOpacity(.7),
+                  ),
+                ),
+              ],
+            ),
           ),
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: onColor,
-            activeTrackColor: onColor.withOpacity(.24),
-            inactiveThumbColor: onColor,
-            inactiveTrackColor: onColor.withOpacity(.24),
+            thumbColor: WidgetStatePropertyAll(onColor),
+            trackColor: WidgetStatePropertyAll(onColor.withOpacity(.24)),
           ),
         ],
       ),
@@ -187,34 +193,42 @@ class _TileButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-            color: cardColor, borderRadius: BorderRadius.circular(16)),
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(children: [
-          _CircleIcon(icon, onColor),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
+        child: Row(
+          children: [
+            _CircleIcon(icon, onColor),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
                     style: TextStyle(
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: onColor)),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: onColor,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
                       fontFamily: 'Lato',
                       fontSize: 13,
-                      color: onColor.withOpacity(.7)),
-                ),
-              ],
+                      color: onColor.withOpacity(.7),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.chevron_right, color: onColor.withOpacity(.7)),
-        ]),
+            Icon(Icons.chevron_right, color: onColor.withOpacity(.7)),
+          ],
+        ),
       ),
     );
   }
@@ -230,15 +244,21 @@ class _CircleIcon extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-          color: onColor.withOpacity(.24), shape: BoxShape.circle),
+        color: onColor.withOpacity(.24),
+        shape: BoxShape.circle,
+      ),
       child: Icon(icon, color: onColor, size: 20),
     );
   }
 }
 
 class _ColorGrid extends StatelessWidget {
-  const _ColorGrid(
-      {required this.selected, required this.onSelect, required this.onColor});
+  const _ColorGrid({
+    required this.selected,
+    required this.onSelect,
+    required this.onColor,
+  });
+
   final Color selected;
   final ValueChanged<Color> onSelect;
   final Color onColor;
@@ -277,33 +297,29 @@ class _ColorGrid extends StatelessWidget {
       child: Wrap(
         spacing: 12,
         runSpacing: 12,
-        children: colors.map(
-          (c) {
-            final isSel = (c.value == selected.value);
-            // check escuro para cores claras; claro para cores escuras
-            final check = (c.computeLuminance() > 0.62)
-                ? const Color(0xDD000000)
-                : Colors.white;
+        children: colors.map((c) {
+          final isSel = (c.value == selected.value);
+          final check = AppTheme.onForSeed(c) == Colors.white
+              ? Colors.white
+              : const Color(0xDD000000);
 
-            return GestureDetector(
-              onTap: () => onSelect(c),
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: c,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black12, width: 1),
-                ),
-                child: isSel
-                    ? Center(
-                        child: Icon(Icons.check_circle, color: check, size: 24),
-                      )
-                    : null,
+          return GestureDetector(
+            onTap: () => onSelect(c),
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: c,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black12, width: 1),
               ),
-            );
-          },
-        ).toList(),
+              child: isSel
+                  ? Center(
+                      child: Icon(Icons.check_circle, color: check, size: 24))
+                  : null,
+            ),
+          );
+        }).toList(),
       ),
     );
   }

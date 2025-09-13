@@ -1,25 +1,23 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 import 'pomodoro_state.dart';
-import '../../core/services/ticker_service.dart';
+import 'package:pomodoro_timer/core/services/ticker_service.dart';
 import 'package:pomodoro_timer/core/services/prefs_service.dart';
 
 class PomodoroController extends StateNotifier<PomodoroState> {
-  PomodoroController(this._ticker, this._prefs) : super(const PomodoroState()) {
+  PomodoroController(this._ticker) : super(const PomodoroState()) {
     _loadConfig();
   }
 
   final TickerService _ticker;
-  final PrefsService _prefs;
   StreamSubscription<int>? _sub;
 
   Future<void> _loadConfig() async {
-    final loaded = await _prefs.loadConfigOrDefault(state.config);
+    final loaded = await PrefsService.loadConfigOrDefault();
     state = state.copyWith(config: loaded);
   }
 
-  Future<void> _saveConfig() => _prefs.saveConfig(state.config);
+  Future<void> _saveConfig() => PrefsService.saveConfig(state.config);
 
   void startFocus() => _startPhase(
         PomodoroPhase.focus,
@@ -72,9 +70,12 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     _sub?.cancel();
     state = state.copyWith(phase: phase, secondsLeft: seconds, running: true);
 
-    _sub = _ticker.countdown(fromSeconds: seconds).listen((remaining) {
-      state = state.copyWith(secondsLeft: remaining, running: true);
-    }, onDone: _onCycleFinished);
+    _sub = _ticker.countdown(fromSeconds: seconds).listen(
+      (remaining) {
+        state = state.copyWith(secondsLeft: remaining, running: true);
+      },
+      onDone: _onCycleFinished,
+    );
   }
 
   void _onCycleFinished() {
@@ -109,7 +110,6 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     }
   }
 
-  // ===== setters de configuração + persistência =====
   void setFocusMinutes(int minutes) {
     state = state.copyWith(
       config: state.config.copyWith(focusMinutes: minutes),
@@ -160,8 +160,9 @@ class PomodoroController extends StateNotifier<PomodoroState> {
 }
 
 final pomodoroControllerProvider =
-    StateNotifierProvider<PomodoroController, PomodoroState>((ref) {
-  final ticker = ref.read(tickerServiceProvider);
-  final prefs = ref.read(prefsServiceProvider);
-  return PomodoroController(ticker, prefs);
-});
+    StateNotifierProvider<PomodoroController, PomodoroState>(
+  (ref) {
+    final ticker = ref.read(tickerServiceProvider);
+    return PomodoroController(ticker);
+  },
+);

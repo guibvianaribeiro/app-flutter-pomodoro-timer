@@ -1,119 +1,74 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Cores candidatas para texto/ícone
-  static const Color _darkText =
-      Color(0xFF263238); // azul-acinzentado bem escuro (melhor que preto puro)
-  static const Color _lightText = Colors.white;
+  static ThemeData fromSeed(Color seed) {
+    final isSeedLight = seed.computeLuminance() > 0.5;
+    final brightness = isSeedLight ? Brightness.light : Brightness.dark;
 
-  /// Contraste WCAG entre duas cores (quanto maior, melhor)
-  static double _contrastRatio(Color a, Color b) {
-    final l1 = a.computeLuminance();
-    final l2 = b.computeLuminance();
-    final hi = math.max(l1, l2);
-    final lo = math.min(l1, l2);
-    return (hi + 0.05) / (lo + 0.05);
-  }
-
-  /// Escolhe a melhor cor de texto/ícone para a `seed` com base no MAIOR contraste.
-  static Color onForSeed(Color seed) {
-    final cDark = _contrastRatio(_darkText, seed);
-    final cLight = _contrastRatio(_lightText, seed);
-    return (cDark >= cLight) ? _darkText : _lightText;
-  }
-
-  static Color _darken(Color c, [double amt = .10]) {
-    final hsl = HSLColor.fromColor(c);
-    return hsl.withLightness((hsl.lightness - amt).clamp(0.0, 1.0)).toColor();
-  }
-
-  static ThemeData lightWithSeed(Color seed) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seed,
+      brightness: brightness,
+    );
     final on = onForSeed(seed);
 
-    // Esquema baseado na seed, com "on*" coerentes
-    final scheme = ColorScheme.fromSeed(seedColor: seed).copyWith(
-      onPrimary: on,
-      onSecondary: on,
-      onSurface: on,
-      onBackground: on,
-    );
-
-    final base = ThemeData(
+    return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: seed,
-      fontFamily: 'Lato',
-    );
-
-    return base.copyWith(
-      // AppBar com contraste dinâmico
       appBarTheme: AppBarTheme(
-        backgroundColor: seed,
+        backgroundColor: Colors.transparent,
         foregroundColor: on,
-        centerTitle: true,
+        elevation: 0,
+        centerTitle: false,
         titleTextStyle: TextStyle(
           fontFamily: 'Lato',
+          fontSize: 20,
           fontWeight: FontWeight.w700,
-          fontSize: 22,
           color: on,
         ),
+        iconTheme: IconThemeData(color: on),
       ),
-
-      // Ícones (actions, etc.)
       iconTheme: IconThemeData(color: on),
-
-      // Tipografia base
-      textTheme: base.textTheme.copyWith(
-        headlineMedium: TextStyle(
-          fontFamily: 'Lato',
-          fontWeight: FontWeight.w700,
-          fontSize: 22,
-          color: on,
-        ),
-        bodyMedium: TextStyle(
-          fontFamily: 'Lato',
-          fontSize: 16,
-          color: on,
-        ),
-        // Dígitos grandes (cartões brancos)
-        displayMedium: TextStyle(
-          fontFamily: 'Oswald',
-          fontWeight: FontWeight.w700,
-          fontSize: 72,
-          color: _darken(seed, .12),
-        ),
-      ),
-
-      // Chips: fundo translúcido quando não selecionado; branco quando selecionado.
-      chipTheme: base.chipTheme.copyWith(
-        backgroundColor: on.withOpacity(.12),
-        selectedColor: Colors.white,
-        labelStyle: TextStyle(
-          color: on,
-          fontFamily: 'Lato',
-          fontWeight: FontWeight.w700,
-        ),
-        secondaryLabelStyle: TextStyle(
-          color: on.withOpacity(.7),
-          fontFamily: 'Lato',
-        ),
-        side: const BorderSide(color: Colors.transparent),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
-
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _darken(seed, .08),
-          foregroundColor: on,
-          shape: const StadiumBorder(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        ),
+      textTheme: Typography.blackCupertino.apply(
+        displayColor: on,
+        bodyColor: on,
       ),
     );
   }
+  static Color onForSeed(Color seed) {
+    final luminance = seed.computeLuminance();
+    return luminance > 0.5 ? const Color(0xFF263238) : Colors.white;
+  }
+  static Color digitsOnCard(Color seed) {
+    final hsl = HSLColor.fromColor(seed);
+    final newLightness = (hsl.lightness * 0.35).clamp(0.18, 0.38);
+    final newSaturation = (hsl.saturation * 0.85).clamp(0.45, 0.95);
+    return hsl
+        .withLightness(newLightness.toDouble())
+        .withSaturation(newSaturation.toDouble())
+        .toColor();
+  }
 
-  /// Compat: se alguém ainda usa `AppTheme.light`
-  static ThemeData get light => lightWithSeed(const Color(0xFFF45B5E));
+  static List<BoxShadow> softShadow(Color seed) => const [
+        BoxShadow(
+          color: Color(0x1F000000),
+          blurRadius: 18,
+          offset: Offset(0, 10),
+        ),
+        BoxShadow(
+          color: Color(0x14000000),
+          blurRadius: 6,
+          offset: Offset(0, 2),
+        ),
+      ];
+
+  static Color selectedPillBg(Color seed) {
+    final on = onForSeed(seed);
+    return Color.alphaBlend(on.withAlpha(0x33), seed);
+  }
+
+  static Color unselectedPillBg(Color seed) {
+    final on = onForSeed(seed);
+    return Color.alphaBlend(on.withAlpha(0x14), seed);
+  }
 }

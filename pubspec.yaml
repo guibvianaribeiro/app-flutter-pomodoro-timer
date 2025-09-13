@@ -1,27 +1,23 @@
 name: pomodoro_timer
 description: Aplicativo Flutter de Timer Pomodoro.
 version: 0.2.0+1
-
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
-
   flutter:
     sdk: flutter
-
   flutter_riverpod: ^2.6.1
   flutter_launcher_icons: "^0.10.0"
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
     flutter_lints: ^3.0.2
-    shared_preferences: ^2.2.3
 
 flutter_test:
     sdk: flutter
 
 flutter:
-
   fonts:
     - family: Oswald
       fonts:
@@ -33,7 +29,6 @@ flutter:
         - asset: assets/fonts/Lato-Regular.ttf
         - asset: assets/fonts/Lato-Bold.ttf
           weight: 700
-
   uses-material-design: true
 
 flutter_icons:

@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pomodoro_timer/core/services/prefs_service.dart';
+import 'app_theme.dart';
 
-final prefsServiceProvider = Provider<PrefsService>((_) => PrefsService());
+final seedColorProvider =
+    StateNotifierProvider<SeedColorNotifier, Color>((ref) {
+  return SeedColorNotifier();
+});
 
 class SeedColorNotifier extends StateNotifier<Color> {
-  SeedColorNotifier(this._prefs) : super(const Color(0xFFF45B5E)) {
-    _load();
-  }
-  final PrefsService _prefs;
+  SeedColorNotifier() : super(const Color(0xFFF45B5E));
 
-  Future<void> _load() async {
-    final c = await _prefs.loadSeedColor();
-    if (c != null) state = c;
-  }
-
-  Future<void> set(Color c) async {
-    state = c;
-    await _prefs.saveSeedColor(c);
-  }
+  void set(Color c) => state = c;
 }
 
-final seedColorProvider = StateNotifierProvider<SeedColorNotifier, Color>(
-  (ref) {
-    final prefs = ref.read(prefsServiceProvider);
-    return SeedColorNotifier(prefs);
-  },
-);
+final themeProvider = Provider<ThemeData>((ref) {
+  final seed = ref.watch(seedColorProvider);
+  return AppTheme.fromSeed(seed);
+});

@@ -93,84 +93,96 @@ class TimerPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(fontFamily: 'Oswald', fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 16),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final compact = constraints.maxHeight < 700;
+            final topGap = compact ? 6.0 : 10.0;
+            final titleGap = compact ? 10.0 : 16.0;
+            final afterDisplayGap = compact ? 8.0 : 16.0;
+            final afterChipsGap = compact ? 6.0 : 10.0;
+            final beforeCountersGap = compact ? 20.0 : 36.0;
+            final bottomGap = compact ? 12.0 : 24.0;
 
-            _TimeDisplay(
-                onColor: on, seed: seed, minutes: minutes, seconds: seconds),
-
-            const SizedBox(height: 16),
-
-            _DurationChips(
-              seed: seed,
-              selectedMinutes: state.config.focusMinutes,
-              onSelect: (m) => ctrl.setFocusMinutes(m),
-              onPickCustom: pickCustomFocus,
-            ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: AppTheme.unselectedPillBg(seed),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
                 children: [
-                  Icon(Icons.timer_outlined,
-                      size: 18, color: on.withAlpha(0xCC)),
-                  const SizedBox(width: 6),
+                  SizedBox(height: topGap),
                   Text(
-                    '${state.config.focusMinutes} min',
-                    style: TextStyle(
-                      fontFamily: 'Oswald',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: on.withAlpha(0xCC),
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontFamily: 'Oswald', fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(height: titleGap),
+                  _TimeDisplay(
+                      onColor: on,
+                      seed: seed,
+                      minutes: minutes,
+                      seconds: seconds),
+                  SizedBox(height: afterDisplayGap),
+                  _DurationChips(
+                    seed: seed,
+                    selectedMinutes: state.config.focusMinutes,
+                    onSelect: (m) => ctrl.setFocusMinutes(m),
+                    onPickCustom: pickCustomFocus,
+                    compact: compact,
+                  ),
+                  SizedBox(height: afterChipsGap),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.unselectedPillBg(seed),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 18, vertical: compact ? 8 : 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.timer_outlined,
+                            size: 18, color: on.withAlpha(0xE6)),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${state.config.focusMinutes} min',
+                          style: TextStyle(
+                            fontFamily: 'Oswald',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: on.withAlpha(0xE6),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  const Spacer(),
+                  _PlayPause(
+                      seed: seed,
+                      running: state.running,
+                      onToggle: ctrl.toggle,
+                      compact: compact),
+                  SizedBox(height: beforeCountersGap),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _CounterBlock(
+                        value:
+                            '${state.completedFocusCycles ~/ state.config.cyclesPerLongBreak}/${state.config.cyclesPerLongBreak}',
+                        label: 'Pausas',
+                        onColor: on,
+                      ),
+                      _CounterBlock(
+                        value:
+                            '${state.completedFocusCycles}/${state.config.dailyTargetCycles}',
+                        label: 'Ciclos',
+                        onColor: on,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: bottomGap),
                 ],
               ),
-            ),
-
-            const Spacer(),
-
-            _PlayPause(
-                seed: seed, running: state.running, onToggle: ctrl.toggle),
-
-            const SizedBox(height: 36),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _CounterBlock(
-                  value:
-                      '${state.completedFocusCycles ~/ state.config.cyclesPerLongBreak}/${state.config.cyclesPerLongBreak}',
-                  label: 'Pausas',
-                  onColor: on,
-                ),
-                _CounterBlock(
-                  value:
-                      '${state.completedFocusCycles}/${state.config.dailyTargetCycles}',
-                  label: 'Ciclos',
-                  onColor: on,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -212,25 +224,32 @@ class _TimeDisplay extends StatelessWidget {
           boxShadow: AppTheme.softShadow(seed),
         );
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: w,
-          height: h,
-          decoration: cardBox(),
-          alignment: Alignment.center,
-          child: Text(_two(minutes), style: textStyle),
-        ),
-        const SizedBox(width: 16),
-        Container(
-          width: w,
-          height: h,
-          decoration: cardBox(),
-          alignment: Alignment.center,
-          child: Text(_two(seconds), style: textStyle),
-        ),
-      ],
+    final semanticsLabel =
+        'Tempo restante: ${minutes.toString()} minutos e ${seconds.toString()} segundos';
+
+    return Semantics(
+      label: semanticsLabel,
+      readOnly: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: w,
+            height: h,
+            decoration: cardBox(),
+            alignment: Alignment.center,
+            child: Text(_two(minutes), style: textStyle),
+          ),
+          const SizedBox(width: 16),
+          Container(
+            width: w,
+            height: h,
+            decoration: cardBox(),
+            alignment: Alignment.center,
+            child: Text(_two(seconds), style: textStyle),
+          ),
+        ],
+      ),
     );
   }
 
@@ -243,12 +262,14 @@ class _DurationChips extends StatelessWidget {
     required this.selectedMinutes,
     required this.onSelect,
     required this.onPickCustom,
+    this.compact = false,
   });
 
   final Color seed;
   final int selectedMinutes;
   final ValueChanged<int> onSelect;
   final VoidCallback onPickCustom;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +280,7 @@ class _DurationChips extends StatelessWidget {
       final bg = isSel
           ? AppTheme.selectedPillBg(seed)
           : AppTheme.unselectedPillBg(seed);
-      final fg = isSel ? on : on.withAlpha(0xCC);
+      final fg = isSel ? on : on.withAlpha(0xE6);
 
       return Container(
         decoration: BoxDecoration(
@@ -267,7 +288,8 @@ class _DurationChips extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           boxShadow: isSel ? AppTheme.softShadow(seed) : null,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        padding:
+            EdgeInsets.symmetric(horizontal: 18, vertical: compact ? 10 : 12),
         child: GestureDetector(
           onTap: () => onSelect(m),
           child: Text('$m',
@@ -282,7 +304,7 @@ class _DurationChips extends StatelessWidget {
     }
 
     final customBg = AppTheme.unselectedPillBg(seed);
-    final customFg = on.withAlpha(0xCC);
+    final customFg = on.withAlpha(0xE6);
 
     return Wrap(
       spacing: 12,
@@ -299,7 +321,8 @@ class _DurationChips extends StatelessWidget {
               color: customBg,
               borderRadius: BorderRadius.circular(14),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+                horizontal: 16, vertical: compact ? 10 : 12),
             child: Icon(Icons.timer_outlined, size: 18, color: customFg),
           ),
         ),
@@ -310,11 +333,15 @@ class _DurationChips extends StatelessWidget {
 
 class _PlayPause extends StatelessWidget {
   const _PlayPause(
-      {required this.seed, required this.running, required this.onToggle});
+      {required this.seed,
+      required this.running,
+      required this.onToggle,
+      this.compact = false});
 
   final Color seed;
   final bool running;
   final VoidCallback onToggle;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -332,10 +359,16 @@ class _PlayPause extends StatelessWidget {
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onToggle,
-          child: const Padding(
-            padding: EdgeInsets.all(28),
-            child: Icon(Icons.play_arrow_rounded,
-                size: 32),
+          child: Semantics(
+            label: running ? 'Pausar' : 'Iniciar',
+            button: true,
+            child: Padding(
+              padding: EdgeInsets.all(compact ? 22 : 28),
+              child: Icon(
+                running ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                size: 32,
+              ),
+            ),
           ),
         ),
       ),

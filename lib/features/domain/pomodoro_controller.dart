@@ -4,13 +4,13 @@ import 'pomodoro_state.dart';
 import 'package:pomodoro_timer/core/services/ticker_service.dart';
 import 'package:pomodoro_timer/core/services/prefs_service.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pomodoro_timer/core/services/notification_service.dart';
 import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 
 class PomodoroController extends StateNotifier<PomodoroState> {
-  PomodoroController(this._ticker, this._ref)
-      : super(const PomodoroState()) {
+  PomodoroController(this._ticker, this._ref) : super(const PomodoroState()) {
     _loadConfig();
   }
 
@@ -171,11 +171,17 @@ class PomodoroController extends StateNotifier<PomodoroState> {
   }
 
   Future<void> _applyWakelock() async {
+    // Evita erros de canal em plataformas sem suporte e durante hot reload
+    if (kIsWeb) return;
     final keepOn = _ref.read(keepScreenOnProvider);
-    if (state.running && keepOn) {
-      await WakelockPlus.enable();
-    } else {
-      await WakelockPlus.disable();
+    try {
+      if (state.running && keepOn) {
+        await WakelockPlus.enable();
+      } else {
+        await WakelockPlus.disable();
+      }
+    } catch (_) {
+      // Ignora falhas do plugin (ex.: ainda não registrado). Não deve travar o app.
     }
   }
 

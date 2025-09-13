@@ -69,6 +69,7 @@ class AppTheme {
 
   static Color unselectedPillBg(Color seed) {
     final on = onForSeed(seed);
-    return Color.alphaBlend(on.withAlpha(0x14), seed);
+    // Levemente mais contrastado para melhorar a acessibilidade
+    return Color.alphaBlend(on.withAlpha(0x20), seed);
   }
 }

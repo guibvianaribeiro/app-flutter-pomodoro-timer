@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pomodoro_timer/core/theme/app_theme.dart';
@@ -25,6 +27,25 @@ class TimerPage extends ConsumerWidget {
 
     final minutes = (state.secondsLeft ~/ 60);
     final seconds = (state.secondsLeft % 60);
+
+    String? nextAutoLabel() {
+      final cfg = state.config;
+      if (state.phase == PomodoroPhase.focus ||
+          state.phase == PomodoroPhase.idle) {
+        if (!cfg.autoStartBreaks) return null;
+        final nextCount = state.completedFocusCycles + 1;
+        final isLong =
+            cfg.enableLongBreak && (nextCount % cfg.cyclesPerLongBreak == 0);
+        final label = isLong ? 'Pausa longa' : 'Pausa';
+        final m = isLong ? cfg.longBreakMinutes : cfg.shortBreakMinutes;
+        return 'Próximo: $label $m min';
+      } else {
+        if (!cfg.autoStartFocus) return null;
+        return 'Próximo: Foco ${cfg.focusMinutes} min';
+      }
+    }
+
+    final nextLabel = nextAutoLabel();
 
     Future<void> pickCustomFocus() async {
       final v = await showDialog<int>(
@@ -84,7 +105,7 @@ class TimerPage extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline_rounded),
+            icon: const Icon(Icons.settings_rounded),
             onPressed: () => Navigator.pushNamed(context, '/prefs'),
           ),
           IconButton(
@@ -109,17 +130,29 @@ class TimerPage extends ConsumerWidget {
               child: Column(
                 children: [
                   SizedBox(height: topGap),
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontFamily: 'Oswald', fontWeight: FontWeight.w700),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.unselectedPillBg(seed),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(
+                      title.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Oswald',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
                   SizedBox(height: titleGap),
                   _TimeDisplay(
                       onColor: on,
                       seed: seed,
                       minutes: minutes,
-                      seconds: seconds),
+                      seconds: seconds,
+                      running: state.running),
                   SizedBox(height: afterDisplayGap),
                   _DurationChips(
                     seed: seed,
@@ -154,6 +187,34 @@ class TimerPage extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  if (nextLabel != null) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.unselectedPillBg(seed),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.navigate_next_rounded,
+                              size: 18, color: on.withAlpha(0xE6)),
+                          const SizedBox(width: 4),
+                          Text(
+                            nextLabel,
+                            style: TextStyle(
+                              fontFamily: 'Oswald',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: on.withAlpha(0xE6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const Spacer(),
                   _PlayPause(
                       seed: seed,
@@ -176,6 +237,13 @@ class TimerPage extends ConsumerWidget {
                         label: 'Ciclos',
                         onColor: on,
                       ),
+                      if (state.config.enableLongBreak)
+                        _CounterBlock(
+                          value:
+                              '${(state.completedFocusCycles ~/ state.config.cyclesPerLongBreak)}',
+                          label: 'Longas',
+                          onColor: on,
+                        ),
                     ],
                   ),
                   SizedBox(height: bottomGap),
@@ -195,12 +263,14 @@ class _TimeDisplay extends StatelessWidget {
     required this.seed,
     required this.minutes,
     required this.seconds,
+    required this.running,
   });
 
   final Color onColor;
   final Color seed;
   final int minutes;
   final int seconds;
+  final bool running;
 
   @override
   Widget build(BuildContext context) {
@@ -227,9 +297,24 @@ class _TimeDisplay extends StatelessWidget {
     final semanticsLabel =
         'Tempo restante: ${minutes.toString()} minutos e ${seconds.toString()} segundos';
 
-    return Semantics(
-      label: semanticsLabel,
-      readOnly: true,
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+      tween: Tween(begin: 1.0, end: running ? 1.0 : 0.98),
+      builder: (context, scale, child) {
+        final blur = running ? 0.0 : 0.8;
+        return Semantics(
+          label: semanticsLabel,
+          readOnly: true,
+          child: Transform.scale(
+            scale: scale,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+              child: child,
+            ),
+          ),
+        );
+      },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -282,23 +367,30 @@ class _DurationChips extends StatelessWidget {
           : AppTheme.unselectedPillBg(seed);
       final fg = isSel ? on : on.withAlpha(0xE6);
 
-      return Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: isSel ? AppTheme.softShadow(seed) : null,
-        ),
-        padding:
-            EdgeInsets.symmetric(horizontal: 18, vertical: compact ? 10 : 12),
-        child: GestureDetector(
-          onTap: () => onSelect(m),
-          child: Text('$m',
-              style: TextStyle(
-                fontFamily: 'Oswald',
-                fontWeight: FontWeight.w700,
-                fontSize: 16,
-                color: fg,
-              )),
+      return AnimatedScale(
+        duration: const Duration(milliseconds: 160),
+        scale: isSel ? 1.06 : 1.0,
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: isSel ? AppTheme.softShadow(seed) : null,
+          ),
+          padding:
+              EdgeInsets.symmetric(horizontal: 18, vertical: compact ? 10 : 12),
+          child: GestureDetector(
+            onTap: () => onSelect(m),
+            child: Text('$m',
+                style: TextStyle(
+                  fontFamily: 'Oswald',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: fg,
+                )),
+          ),
         ),
       );
     }
@@ -316,7 +408,9 @@ class _DurationChips extends StatelessWidget {
         chip(25),
         GestureDetector(
           onTap: onPickCustom,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
             decoration: BoxDecoration(
               color: customBg,
               borderRadius: BorderRadius.circular(14),
@@ -348,31 +442,44 @@ class _PlayPause extends StatelessWidget {
     final on = AppTheme.onForSeed(seed);
     final bg = Color.alphaBlend(on.withAlpha(0x24), seed);
 
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: AppTheme.softShadow(seed),
-      ),
-      child: Material(
-        color: bg,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onToggle,
-          child: Semantics(
-            label: running ? 'Pausar' : 'Iniciar',
-            button: true,
-            child: Padding(
-              padding: EdgeInsets.all(compact ? 22 : 28),
-              child: Icon(
-                running ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                size: 32,
+    return AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        scale: running ? 1.06 : 1.0,
+        curve: Curves.easeOut,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: AppTheme.softShadow(seed),
+          ),
+          child: Material(
+            color: bg,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: onToggle,
+              child: Semantics(
+                label: running ? 'Pausar' : 'Iniciar',
+                button: true,
+                child: Padding(
+                  padding: EdgeInsets.all(compact ? 22 : 28),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 160),
+                    transitionBuilder: (child, anim) => ScaleTransition(
+                      scale:
+                          CurvedAnimation(parent: anim, curve: Curves.easeOut),
+                      child: child,
+                    ),
+                    child: Icon(
+                      running ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                      key: ValueKey(running),
+                      size: 32,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 

@@ -5,15 +5,21 @@ class PomodoroConfig {
   final int shortBreakMinutes;
   final int longBreakMinutes;
   final int cyclesPerLongBreak;
-  final bool autoStartNext;
+  final bool enableLongBreak;
+  final bool autoStartNext; // legado, não usado mais na lógica
+  final bool autoStartBreaks;
+  final bool autoStartFocus;
   final int dailyTargetCycles;
 
   const PomodoroConfig({
     this.focusMinutes = 25,
     this.shortBreakMinutes = 5,
-    this.longBreakMinutes = 15,
+    this.longBreakMinutes = 20,
     this.cyclesPerLongBreak = 4,
+    this.enableLongBreak = true,
     this.autoStartNext = false,
+    this.autoStartBreaks = false,
+    this.autoStartFocus = false,
     this.dailyTargetCycles = 12,
   });
 
@@ -22,7 +28,10 @@ class PomodoroConfig {
     int? shortBreakMinutes,
     int? longBreakMinutes,
     int? cyclesPerLongBreak,
+    bool? enableLongBreak,
     bool? autoStartNext,
+    bool? autoStartBreaks,
+    bool? autoStartFocus,
     int? dailyTargetCycles,
   }) {
     return PomodoroConfig(
@@ -30,7 +39,10 @@ class PomodoroConfig {
       shortBreakMinutes: shortBreakMinutes ?? this.shortBreakMinutes,
       longBreakMinutes: longBreakMinutes ?? this.longBreakMinutes,
       cyclesPerLongBreak: cyclesPerLongBreak ?? this.cyclesPerLongBreak,
+      enableLongBreak: enableLongBreak ?? this.enableLongBreak,
       autoStartNext: autoStartNext ?? this.autoStartNext,
+      autoStartBreaks: autoStartBreaks ?? this.autoStartBreaks,
+      autoStartFocus: autoStartFocus ?? this.autoStartFocus,
       dailyTargetCycles: dailyTargetCycles ?? this.dailyTargetCycles,
     );
   }

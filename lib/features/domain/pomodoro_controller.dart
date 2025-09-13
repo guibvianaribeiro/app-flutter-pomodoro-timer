@@ -91,15 +91,18 @@ class PomodoroController extends StateNotifier<PomodoroState> {
   void _onCycleFinished() {
     if (state.phase == PomodoroPhase.focus) {
       final nextCount = state.completedFocusCycles + 1;
-      final isLong = nextCount % state.config.cyclesPerLongBreak == 0;
+      final isLong = state.config.enableLongBreak &&
+          (nextCount % state.config.cyclesPerLongBreak == 0);
 
       state = state.copyWith(completedFocusCycles: nextCount, running: false);
 
-      _maybeNotify(isLong ? 'Foco concluído' : 'Foco concluído',
+      _maybeNotify('Foco concluído',
           isLong ? 'Hora da pausa longa' : 'Hora da pausa curta');
 
-      if (state.config.autoStartNext) {
-        isLong ? startLongBreak() : startShortBreak();
+      if (state.config.autoStartBreaks) {
+        isLong && state.config.enableLongBreak
+            ? startLongBreak()
+            : startShortBreak();
       } else {
         state = state.copyWith(
           phase: isLong ? PomodoroPhase.longBreak : PomodoroPhase.shortBreak,
@@ -112,7 +115,7 @@ class PomodoroController extends StateNotifier<PomodoroState> {
         state.phase == PomodoroPhase.longBreak) {
       _maybeNotify('Pausa concluída', 'Vamos voltar ao foco');
 
-      if (state.config.autoStartNext) {
+      if (state.config.autoStartFocus) {
         startFocus();
       } else {
         state = state.copyWith(
@@ -163,9 +166,30 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     _saveConfig();
   }
 
+  void setEnableLongBreak(bool v) {
+    state = state.copyWith(
+      config: state.config.copyWith(enableLongBreak: v),
+    );
+    _saveConfig();
+  }
+
   void setAutoStartNext(bool v) {
     state = state.copyWith(
       config: state.config.copyWith(autoStartNext: v),
+    );
+    _saveConfig();
+  }
+
+  void setAutoStartBreaks(bool v) {
+    state = state.copyWith(
+      config: state.config.copyWith(autoStartBreaks: v),
+    );
+    _saveConfig();
+  }
+
+  void setAutoStartFocus(bool v) {
+    state = state.copyWith(
+      config: state.config.copyWith(autoStartFocus: v),
     );
     _saveConfig();
   }

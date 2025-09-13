@@ -15,6 +15,9 @@ class PrefsService {
   static const _kShortMin = 'cfg_short_break_minutes';
   static const _kLongMin = 'cfg_long_break_minutes';
   static const _kCyclesPerLong = 'cfg_cycles_per_long_break';
+  static const _kEnableLong = 'cfg_enable_long_break';
+  static const _kAutoStartBreaks = 'cfg_auto_start_breaks';
+  static const _kAutoStartFocus = 'cfg_auto_start_focus';
   static const _kDailyTarget = 'cfg_daily_target_cycles';
 
   static Future<void> setSeed(Color c) async {
@@ -63,8 +66,11 @@ class PrefsService {
     final sp = await SharedPreferences.getInstance();
     final focus = sp.getInt(_kFocusMin) ?? 25;
     final shortB = sp.getInt(_kShortMin) ?? 5;
-    final longB = sp.getInt(_kLongMin) ?? 15;
+    final longB = sp.getInt(_kLongMin) ?? 20;
     final cyclesPerLong = sp.getInt(_kCyclesPerLong) ?? 4;
+    final enableLong = sp.getBool(_kEnableLong) ?? true;
+    final autoStartBreaks = sp.getBool(_kAutoStartBreaks) ?? false;
+    final autoStartFocus = sp.getBool(_kAutoStartFocus) ?? false;
     final dailyTarget = sp.getInt(_kDailyTarget) ?? 12;
 
     return PomodoroConfig(
@@ -72,6 +78,9 @@ class PrefsService {
       shortBreakMinutes: shortB,
       longBreakMinutes: longB,
       cyclesPerLongBreak: cyclesPerLong,
+      enableLongBreak: enableLong,
+      autoStartBreaks: autoStartBreaks,
+      autoStartFocus: autoStartFocus,
       dailyTargetCycles: dailyTarget,
     );
   }
@@ -82,6 +91,9 @@ class PrefsService {
     await sp.setInt(_kShortMin, c.shortBreakMinutes);
     await sp.setInt(_kLongMin, c.longBreakMinutes);
     await sp.setInt(_kCyclesPerLong, c.cyclesPerLongBreak);
+    await sp.setBool(_kEnableLong, c.enableLongBreak);
+    await sp.setBool(_kAutoStartBreaks, c.autoStartBreaks);
+    await sp.setBool(_kAutoStartFocus, c.autoStartFocus);
     await sp.setInt(_kDailyTarget, c.dailyTargetCycles);
   }
 

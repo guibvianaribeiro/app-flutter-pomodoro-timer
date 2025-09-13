@@ -60,6 +60,24 @@ class HelpPage extends ConsumerWidget {
           children: [
             const _SectionTitle('OPÇÕES'),
             _TileSwitch(
+              title: 'Auto iniciar pausas',
+              subtitle: 'Começa a pausa automaticamente após o foco',
+              value: state.config.autoStartBreaks,
+              onChanged: (v) => ctrl.setAutoStartBreaks(v),
+              icon: Icons.pause_circle_filled_rounded,
+              seed: seed,
+            ),
+            const SizedBox(height: 12),
+            _TileSwitch(
+              title: 'Auto iniciar próximo ciclo',
+              subtitle: 'Começa o foco automaticamente após a pausa',
+              value: state.config.autoStartFocus,
+              onChanged: (v) => ctrl.setAutoStartFocus(v),
+              icon: Icons.play_circle_fill_rounded,
+              seed: seed,
+            ),
+            const SizedBox(height: 12),
+            _TileSwitch(
               title: 'Manter tela ligada',
               subtitle: 'Evita que a tela apague durante o timer',
               value: ref.watch(keepScreenOnProvider),
@@ -88,7 +106,16 @@ class HelpPage extends ConsumerWidget {
               seed: seed,
             ),
             const SizedBox(height: 24),
-            const _SectionTitle('PAUSAS E CICLOS'),
+            const _SectionTitle('PAUSAS E METAS'),
+            _TileSwitch(
+              title: 'Pausa longa automática',
+              subtitle: 'A cada ${state.config.cyclesPerLongBreak} pomodoros',
+              value: state.config.enableLongBreak,
+              onChanged: (v) => ctrl.setEnableLongBreak(v),
+              icon: Icons.hourglass_bottom_rounded,
+              seed: seed,
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -100,6 +127,7 @@ class HelpPage extends ConsumerWidget {
                     onInc: () => ctrl.setCyclesPerLongBreak(
                         (state.config.cyclesPerLongBreak + 1).clamp(2, 12)),
                     seed: seed,
+                    unit: '×',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -112,6 +140,38 @@ class HelpPage extends ConsumerWidget {
                     onInc: () => ctrl.setDailyTargetCycles(
                         (state.config.dailyTargetCycles + 1).clamp(1, 30)),
                     seed: seed,
+                    unit: '×',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const _SectionTitle('PAUSA CURTA E LONGA'),
+            Row(
+              children: [
+                Expanded(
+                  child: _StepperCard(
+                    title: 'PAUSA CURTA',
+                    value: state.config.shortBreakMinutes,
+                    onDec: () => ctrl.setShortBreakMinutes(
+                        (state.config.shortBreakMinutes - 1).clamp(1, 30)),
+                    onInc: () => ctrl.setShortBreakMinutes(
+                        (state.config.shortBreakMinutes + 1).clamp(1, 30)),
+                    seed: seed,
+                    unit: 'min',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StepperCard(
+                    title: 'PAUSA LONGA',
+                    value: state.config.longBreakMinutes,
+                    onDec: () => ctrl.setLongBreakMinutes(
+                        (state.config.longBreakMinutes - 1).clamp(1, 60)),
+                    onInc: () => ctrl.setLongBreakMinutes(
+                        (state.config.longBreakMinutes + 1).clamp(1, 60)),
+                    seed: seed,
+                    unit: 'min',
                   ),
                 ),
               ],
@@ -122,6 +182,13 @@ class HelpPage extends ConsumerWidget {
               selected: seed,
               onSelect: (c) => ref.read(seedColorProvider.notifier).set(c),
               seed: seed,
+            ),
+            const SizedBox(height: 24),
+            const _SectionTitle('SOBRE O POMODORO'),
+            _InfoCard(
+              seed: seed,
+              text:
+                  'Pomodoro é uma técnica de foco em blocos de tempo. Trabalhe por um período (ex.: 25 min) e faça pausas curtas (5 min). A cada 4 ciclos, faça uma pausa longa (15–20 min).',
             ),
           ],
         ),
@@ -135,12 +202,14 @@ class _SectionTitle extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.headlineMedium?.copyWith(
+          fontFamily: 'Oswald',
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.4,
+        );
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
+      child: Text(text, style: style),
     );
   }
 }
@@ -172,11 +241,11 @@ class _TileSwitch extends StatelessWidget {
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
           _CircleIcon(icon: icon, seed: seed),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -238,6 +307,7 @@ class _StepperCard extends StatelessWidget {
     required this.onDec,
     required this.onInc,
     required this.seed,
+    this.unit = '×',
   });
 
   final String title;
@@ -245,6 +315,7 @@ class _StepperCard extends StatelessWidget {
   final VoidCallback onDec;
   final VoidCallback onInc;
   final Color seed;
+  final String unit;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +326,7 @@ class _StepperCard extends StatelessWidget {
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             child: Icon(icon, color: on),
           ),
         );
@@ -265,7 +336,7 @@ class _StepperCard extends StatelessWidget {
         color: bg,
         borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -280,11 +351,11 @@ class _StepperCard extends StatelessWidget {
             children: [
               roundBtn(Icons.remove_rounded, onDec),
               Text(
-                '$value ×',
+                '$value $unit',
                 style: TextStyle(
                   fontFamily: 'Oswald',
                   fontWeight: FontWeight.w700,
-                  fontSize: 28,
+                  fontSize: 26,
                   color: on,
                 ),
               ),
@@ -368,6 +439,37 @@ class _ColorGrid extends StatelessWidget {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({required this.seed, required this.text});
+  final Color seed;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final on = AppTheme.onForSeed(seed);
+    return Container(
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(on.withAlpha(0x14), seed),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline_rounded, color: on),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontFamily: 'Lato', color: on.withAlpha(0xE6)),
+            ),
+          ),
+        ],
       ),
     );
   }

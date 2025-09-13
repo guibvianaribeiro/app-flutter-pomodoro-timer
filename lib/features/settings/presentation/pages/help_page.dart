@@ -4,9 +4,43 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 import 'package:pomodoro_timer/core/theme/app_theme.dart';
 import 'package:pomodoro_timer/features/domain/pomodoro_controller.dart';
+import 'package:pomodoro_timer/core/services/prefs_service.dart';
 
-final notificationsEnabledProvider = StateProvider<bool>((_) => true);
-final vibrateEnabledProvider = StateProvider<bool>((_) => true);
+final notificationsEnabledProvider =
+    StateNotifierProvider<NotificationsEnabledNotifier, bool>((ref) {
+  return NotificationsEnabledNotifier();
+});
+
+final vibrateEnabledProvider =
+    StateNotifierProvider<VibrateEnabledNotifier, bool>((ref) {
+  return VibrateEnabledNotifier();
+});
+
+class NotificationsEnabledNotifier extends StateNotifier<bool> {
+  NotificationsEnabledNotifier() : super(true) {
+    _load();
+  }
+  Future<void> _load() async {
+    state = await PrefsService.getNotificationsEnabled();
+  }
+  Future<void> set(bool v) async {
+    state = v;
+    await PrefsService.setNotificationsEnabled(v);
+  }
+}
+
+class VibrateEnabledNotifier extends StateNotifier<bool> {
+  VibrateEnabledNotifier() : super(true) {
+    _load();
+  }
+  Future<void> _load() async {
+    state = await PrefsService.getVibrateEnabled();
+  }
+  Future<void> set(bool v) async {
+    state = v;
+    await PrefsService.setVibrateEnabled(v);
+  }
+}
 
 class HelpPage extends ConsumerWidget {
   const HelpPage({super.key});
@@ -26,11 +60,20 @@ class HelpPage extends ConsumerWidget {
           children: [
             const _SectionTitle('OPÇÕES'),
             _TileSwitch(
+              title: 'Manter tela ligada',
+              subtitle: 'Evita que a tela apague durante o timer',
+              value: ref.watch(keepScreenOnProvider),
+              onChanged: (v) => ref.read(keepScreenOnProvider.notifier).set(v),
+              icon: Icons.screen_lock_portrait_rounded,
+              seed: seed,
+            ),
+            const SizedBox(height: 12),
+            _TileSwitch(
               title: 'Mostrar notificações ao finalizar um ciclo',
               subtitle: 'Exibe um alerta quando o tempo termina',
               value: ref.watch(notificationsEnabledProvider),
               onChanged: (v) =>
-                  ref.read(notificationsEnabledProvider.notifier).state = v,
+                  ref.read(notificationsEnabledProvider.notifier).set(v),
               icon: Icons.notifications_active_rounded,
               seed: seed,
             ),
@@ -40,7 +83,7 @@ class HelpPage extends ConsumerWidget {
               subtitle: 'Feedback para vibrar ao fim do ciclo',
               value: ref.watch(vibrateEnabledProvider),
               onChanged: (v) =>
-                  ref.read(vibrateEnabledProvider.notifier).state = v,
+                  ref.read(vibrateEnabledProvider.notifier).set(v),
               icon: Icons.vibration_rounded,
               seed: seed,
             ),

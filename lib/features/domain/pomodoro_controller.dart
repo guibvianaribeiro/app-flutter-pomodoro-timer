@@ -3,14 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pomodoro_state.dart';
 import 'package:pomodoro_timer/core/services/ticker_service.dart';
 import 'package:pomodoro_timer/core/services/prefs_service.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:pomodoro_timer/core/services/notification_service.dart';
+import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 
 class PomodoroController extends StateNotifier<PomodoroState> {
-  PomodoroController(this._ticker) : super(const PomodoroState()) {
+  PomodoroController(this._ticker, this._ref)
+      : super(const PomodoroState()) {
     _loadConfig();
   }
 
   final TickerService _ticker;
   StreamSubscription<int>? _sub;
+  final Ref _ref;
 
   Future<void> _loadConfig() async {
     final loaded = await PrefsService.loadConfigOrDefault();
@@ -49,16 +55,19 @@ class PomodoroController extends StateNotifier<PomodoroState> {
   void pause() {
     _sub?.pause();
     state = state.copyWith(running: false);
+    _applyWakelock();
   }
 
   void resume() {
     _sub?.resume();
     state = state.copyWith(running: true);
+    _applyWakelock();
   }
 
   void reset() {
     _sub?.cancel();
     state = PomodoroState(config: state.config);
+    _applyWakelock();
   }
 
   void skip() {
@@ -76,6 +85,7 @@ class PomodoroController extends StateNotifier<PomodoroState> {
       },
       onDone: _onCycleFinished,
     );
+    _applyWakelock();
   }
 
   void _onCycleFinished() {
@@ -85,6 +95,9 @@ class PomodoroController extends StateNotifier<PomodoroState> {
 
       state = state.copyWith(completedFocusCycles: nextCount, running: false);
 
+      _maybeNotify(isLong ? 'Foco concluído' : 'Foco concluído',
+          isLong ? 'Hora da pausa longa' : 'Hora da pausa curta');
+
       if (state.config.autoStartNext) {
         isLong ? startLongBreak() : startShortBreak();
       } else {
@@ -93,9 +106,12 @@ class PomodoroController extends StateNotifier<PomodoroState> {
           secondsLeft: 0,
           running: false,
         );
+        _applyWakelock();
       }
     } else if (state.phase == PomodoroPhase.shortBreak ||
         state.phase == PomodoroPhase.longBreak) {
+      _maybeNotify('Pausa concluída', 'Vamos voltar ao foco');
+
       if (state.config.autoStartNext) {
         startFocus();
       } else {
@@ -104,9 +120,11 @@ class PomodoroController extends StateNotifier<PomodoroState> {
           running: false,
           secondsLeft: 0,
         );
+        _applyWakelock();
       }
     } else {
       state = state.copyWith(phase: PomodoroPhase.idle, running: false);
+      _applyWakelock();
     }
   }
 
@@ -152,6 +170,26 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     _saveConfig();
   }
 
+  Future<void> _applyWakelock() async {
+    final keepOn = _ref.read(keepScreenOnProvider);
+    if (state.running && keepOn) {
+      await WakelockPlus.enable();
+    } else {
+      await WakelockPlus.disable();
+    }
+  }
+
+  Future<void> _maybeNotify(String title, String body) async {
+    final notify = await PrefsService.getNotificationsEnabled();
+    final vibrate = await PrefsService.getVibrateEnabled();
+    if (notify) {
+      await NotificationService.showCycleFinished(title: title, body: body);
+    }
+    if (vibrate) {
+      HapticFeedback.heavyImpact();
+    }
+  }
+
   @override
   void dispose() {
     _sub?.cancel();
@@ -163,6 +201,6 @@ final pomodoroControllerProvider =
     StateNotifierProvider<PomodoroController, PomodoroState>(
   (ref) {
     final ticker = ref.read(tickerServiceProvider);
-    return PomodoroController(ticker);
+    return PomodoroController(ticker, ref);
   },
 );

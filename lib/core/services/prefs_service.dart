@@ -7,6 +7,9 @@ final prefsServiceProvider = Provider<PrefsService>((ref) => PrefsService());
 
 class PrefsService {
   static const _kSeed = 'seed_argb32';
+  static const _kKeepScreenOn = 'keep_screen_on';
+  static const _kNotifyEnabled = 'notify_enabled';
+  static const _kVibrateEnabled = 'vibrate_enabled';
 
   static const _kFocusMin = 'cfg_focus_minutes';
   static const _kShortMin = 'cfg_short_break_minutes';
@@ -24,6 +27,36 @@ class PrefsService {
     final v = sp.getInt(_kSeed);
     if (v == null) return null;
     return Color(v);
+  }
+
+  static Future<void> setKeepScreenOn(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kKeepScreenOn, v);
+  }
+
+  static Future<bool> getKeepScreenOn() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getBool(_kKeepScreenOn) ?? false;
+  }
+
+  static Future<void> setNotificationsEnabled(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kNotifyEnabled, v);
+  }
+
+  static Future<bool> getNotificationsEnabled() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getBool(_kNotifyEnabled) ?? true;
+  }
+
+  static Future<void> setVibrateEnabled(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kVibrateEnabled, v);
+  }
+
+  static Future<bool> getVibrateEnabled() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getBool(_kVibrateEnabled) ?? true;
   }
 
   static Future<PomodoroConfig> loadConfigOrDefault() async {

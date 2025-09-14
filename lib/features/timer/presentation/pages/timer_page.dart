@@ -1,6 +1,6 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'dart:ui' show ImageFilter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pomodoro_timer/core/theme/app_theme.dart';
 import 'package:pomodoro_timer/core/theme/theme_provider.dart';

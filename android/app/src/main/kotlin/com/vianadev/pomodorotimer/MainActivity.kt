@@ -1,4 +1,4 @@
-package com.guibvianaribeiro.pomodorotimer
+package com.vianadev.pomodorotimer
 
 import io.flutter.embedding.android.FlutterActivity
 

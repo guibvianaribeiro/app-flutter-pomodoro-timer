@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:pomodoro_timer/core/theme/theme_provider.dart';
 import 'package:pomodoro_timer/core/theme/app_theme.dart';
 import 'package:pomodoro_timer/features/domain/pomodoro_controller.dart';
@@ -23,6 +22,7 @@ class NotificationsEnabledNotifier extends StateNotifier<bool> {
   Future<void> _load() async {
     state = await PrefsService.getNotificationsEnabled();
   }
+
   Future<void> set(bool v) async {
     state = v;
     await PrefsService.setNotificationsEnabled(v);
@@ -36,6 +36,7 @@ class VibrateEnabledNotifier extends StateNotifier<bool> {
   Future<void> _load() async {
     state = await PrefsService.getVibrateEnabled();
   }
+
   Future<void> set(bool v) async {
     state = v;
     await PrefsService.setVibrateEnabled(v);

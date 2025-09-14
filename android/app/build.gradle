@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-  namespace "com.guibvianaribeiro.pomodorotimer"
+  namespace "com.vianadev.pomodorotimer"
   compileSdk 34
 
   defaultConfig {
-    applicationId "com.guibvianaribeiro.pomodorotimer"
+    applicationId "com.vianadev.pomodorotimer"
     minSdk 21
     targetSdk 34
     versionCode 1

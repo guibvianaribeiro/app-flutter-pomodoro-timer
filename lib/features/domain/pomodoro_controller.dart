@@ -97,7 +97,7 @@ class PomodoroController extends StateNotifier<PomodoroState> {
       state = state.copyWith(completedFocusCycles: nextCount, running: false);
 
       _maybeNotify('Foco concluído',
-          isLong ? 'Hora da pausa longa' : 'Hora da pausa curta');
+          isLong ? 'Hora da pausa longa' : 'Hora da pausa curta', next: isLong ? 'long' : 'short');
 
       if (state.config.autoStartBreaks) {
         isLong && state.config.enableLongBreak
@@ -113,7 +113,7 @@ class PomodoroController extends StateNotifier<PomodoroState> {
       }
     } else if (state.phase == PomodoroPhase.shortBreak ||
         state.phase == PomodoroPhase.longBreak) {
-      _maybeNotify('Pausa concluída', 'Vamos voltar ao foco');
+      _maybeNotify('Pausa concluída', 'Vamos voltar ao foco', next: 'focus');
 
       if (state.config.autoStartFocus) {
         startFocus();
@@ -209,14 +209,22 @@ class PomodoroController extends StateNotifier<PomodoroState> {
     }
   }
 
-  Future<void> _maybeNotify(String title, String body) async {
+  Future<void> _maybeNotify(String title, String body, {String? next}) async {
     final notify = await PrefsService.getNotificationsEnabled();
     final vibrate = await PrefsService.getVibrateEnabled();
     if (notify) {
-      await NotificationService.showCycleFinished(title: title, body: body);
+      await NotificationService.showCycleFinished(
+          title: title, body: body, nextPhase: next ?? 'focus');
     }
     if (vibrate) {
       HapticFeedback.heavyImpact();
+    }
+  }
+
+  void addMinutesToCurrent(int m) {
+    final extra = m * 60;
+    if (state.secondsLeft > 0) {
+      state = state.copyWith(secondsLeft: state.secondsLeft + extra);
     }
   }
 

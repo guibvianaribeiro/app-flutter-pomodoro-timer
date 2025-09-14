@@ -9,7 +9,7 @@ final seedColorProvider =
 });
 
 class SeedColorNotifier extends StateNotifier<Color> {
-  SeedColorNotifier() : super(const Color(0xFFF45B5E)) {
+  SeedColorNotifier() : super(const Color(0xFF29CBCB)) {
     _load();
   }
 

@@ -189,7 +189,7 @@ class HelpPage extends ConsumerWidget {
             _InfoCard(
               seed: seed,
               text:
-                  'Pomodoro é uma técnica de foco em blocos de tempo. Trabalhe por um período (ex.: 25 min) e faça pausas curtas (5 min). A cada 4 ciclos, faça uma pausa longa (15–20 min).',
+                  'Pomodoro é uma técnica de foco em blocos de tempo. Trabalhe por um período (ex.: 25 min) e faça pausas curtas (5 min). A cada 4 ciclos, faça uma pausa longa (15–20 min). Porém você pode personalizar os timers e ciclos do jeito que achar melhor!',
             ),
           ],
         ),
@@ -383,6 +383,7 @@ class _ColorGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = <Color>[
+      const Color(0xFF29CBCB),
       const Color(0xFFF45B5E),
       const Color(0xFF9A96D9),
       const Color(0xFF5C3C6C),

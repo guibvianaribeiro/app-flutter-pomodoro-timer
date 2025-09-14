@@ -88,7 +88,7 @@ class NotificationService {
       channelDescription: _channel.description,
       importance: Importance.high,
       priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
+      icon: 'ic_stat_pomodoro',
       playSound: true,
       actions: const <AndroidNotificationAction>[
         AndroidNotificationAction('start_next', 'Iniciar próxima'),

@@ -97,7 +97,8 @@ class PomodoroController extends StateNotifier<PomodoroState> {
       state = state.copyWith(completedFocusCycles: nextCount, running: false);
 
       _maybeNotify('Foco concluído',
-          isLong ? 'Hora da pausa longa' : 'Hora da pausa curta', next: isLong ? 'long' : 'short');
+          isLong ? 'Hora da pausa longa' : 'Hora da pausa curta',
+          next: isLong ? 'long' : 'short');
 
       if (state.config.autoStartBreaks) {
         isLong && state.config.enableLongBreak
@@ -195,7 +196,6 @@ class PomodoroController extends StateNotifier<PomodoroState> {
   }
 
   Future<void> _applyWakelock() async {
-    // Evita erros de canal em plataformas sem suporte e durante hot reload
     if (kIsWeb) return;
     final keepOn = _ref.read(keepScreenOnProvider);
     try {
@@ -204,9 +204,7 @@ class PomodoroController extends StateNotifier<PomodoroState> {
       } else {
         await WakelockPlus.disable();
       }
-    } catch (_) {
-      // Ignora falhas do plugin (ex.: ainda não registrado). Não deve travar o app.
-    }
+    } catch (_) {}
   }
 
   Future<void> _maybeNotify(String title, String body, {String? next}) async {

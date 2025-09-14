@@ -6,7 +6,7 @@ class PomodoroConfig {
   final int longBreakMinutes;
   final int cyclesPerLongBreak;
   final bool enableLongBreak;
-  final bool autoStartNext; // legado, não usado mais na lógica
+  final bool autoStartNext;
   final bool autoStartBreaks;
   final bool autoStartFocus;
   final int dailyTargetCycles;

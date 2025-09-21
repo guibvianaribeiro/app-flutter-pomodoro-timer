@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Simple monochrome small icon for notifications -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,3.5c-4.694,0 -8.5,3.806 -8.5,8.5s3.806,8.5 8.5,8.5 8.5,-3.806 8.5,-8.5 -3.806,-8.5 -8.5,-8.5z"/>
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11,3l0,-1.2c0,-0.44 0.36,-0.8 0.8,-0.8h0.4c0.44,0 0.8,0.36 0.8,0.8V3h1.2c0.44,0 0.8,0.36 0.8,0.8v0.4c0,0.44 -0.36,0.8 -0.8,0.8H13v1.2c0,0.44 -0.36,0.8 -0.8,0.8h-0.4c-0.44,0 -0.8,-0.36 -0.8,-0.8V5H9.8c-0.44,0 -0.8,-0.36 -0.8,-0.8V3.8c0,-0.44 0.36,-0.8 0.8,-0.8H11z"/>
+</vector>
+

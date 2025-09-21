@@ -75,9 +75,6 @@ Aplicativo de **timer Pomodoro** simples, acessível e personalizável, desenvol
 
 > Estilo de commits sugerido: [Conventional Commits](https://www.conventionalcommits.org/)
 
-* Guia de contribuição: [`CONTRIBUTING.md`](CONTRIBUTING.md)
-* Código de Conduta: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
-
 </br>
 
 ### FAQ

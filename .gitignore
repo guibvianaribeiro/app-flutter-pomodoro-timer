@@ -34,3 +34,5 @@ app.*.map.json
 *.aab
 *.ipa
 *.keystore
+build/
+**/build/

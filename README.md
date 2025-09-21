@@ -82,9 +82,3 @@ Aplicativo de **timer Pomodoro** simples, acessível e personalizável, desenvol
 * **Por que o timer não notifica?** No Android 13+ é preciso permitir **Notificações** nas configurações do app.
 * **O app coleta meus dados?** Não. Apenas preferências locais.
 * **Por que não há APK no repositório?** Mantemos binários em **Releases** (boa prática de repositórios).
-
-</br>
-
-### Licença
-
-Este projeto é licenciado sob a **MIT** – veja [`LICENSE`](LICENSE) para detalhes.
